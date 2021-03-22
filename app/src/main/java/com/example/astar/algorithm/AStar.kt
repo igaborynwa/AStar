@@ -1,8 +1,6 @@
 package com.example.astar.algorithm
 
 import android.location.Location
-import android.util.Log
-import com.example.astar.Graph
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
