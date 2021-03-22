@@ -4,16 +4,15 @@ import android.location.Location
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-class AStar(var graph: Graph) {
-    //Azon pontok, melyeknek zajlik a vizsgálata
-    var openList =ArrayList<ANode>()
-    //Azon pontok, melyeknek befejeztük a vizsgálatát
-    var closedList = ArrayList<ANode>()
-    //A megtalált legjobb útvonal
-    var path =ArrayList<ANode>()
+object AStar {
+    lateinit var path :ArrayList<ANode>
+    private lateinit var graph: Graph
 
+    fun initGraph(g: Graph){
+        graph=g
+    }
     /**
-     * Visszaadja a két pont közötti légvonalbeli távolságot, ami a heurisztika
+     * Kiszámítja a két pont közötti légvonalbeli távolságot, ami a heurisztika
      */
     fun calculateHeuristics(from: ANode, target: ANode){
         val results= FloatArray(3)
@@ -34,7 +33,8 @@ class AStar(var graph: Graph) {
     /**
      * A closedList-ből elmenti a kalkulált útvonalat
      */
-    fun savePath(target: ANode){
+    private fun savePath(target: ANode){
+        path= ArrayList()
         path.add(target)
         var next = target.parent
         while (next!=null){
@@ -45,10 +45,27 @@ class AStar(var graph: Graph) {
     }
 
     /**
+     * A gráf minden értékét kinullázza, hogy egy tiszta gráfban kezdjük el az algoritmus futását
+     */
+    private fun nullGraph(){
+        for(node in graph.nodes) {
+            node.G=0
+            node.F=0
+            node.H=0
+            node.parent=null
+        }
+    }
+
+    /**
      * Megkeresi a legjobb útvonalat a két megadott indexű csúcs között
      */
     fun findPath(s: Int, t: Int): Boolean{
-        //Lekérjük a két csúcsot a számuk alapján
+        nullGraph()
+        //Azon pontok, melyeknek zajlik a vizsgálata
+        val openList =ArrayList<ANode>()
+        //Azon pontok, melyeknek befejeztük a vizsgálatát
+        val closedList = ArrayList<ANode>()
+        //Lekérjük a két csúcsot a számuk alapján, listák ürítése
         val start =graph.getNodeByNumber(s)
         val target =graph.getNodeByNumber(t)
         //Ha nem létezik a csúcs, hiba
@@ -84,28 +101,31 @@ class AStar(var graph: Graph) {
                 Ha openListben van, akkor  ellenőrizzük, hogy az idejutás költsége jobb-e mint az eddigi, ha igen akkor cseréljük
                 Ha történt változás az utolsó két pontban, akkor újraszámítjuk az eddigi+heurisztika becslést
             */
-            var neighbours = getAllNeighbours(bestNode)
+            var neighbours = getAllNeighbours(bestNode, graph)
             if(neighbours.isNotEmpty()){
                 for(node in neighbours.keys){
                     if(!listContains(closedList, node)){
-                        node.G = bestNode.G+ neighbours.getValue(node)
-                        node.parent = bestNode
+                        var g = bestNode.G+ neighbours.getValue(node)
+
                         if(!listContains(openList, node)){
-                            openList.add(node)
                             calculateHeuristics(node, target)
+                            node.G=g
+                            node.F=node.G+node.H
+                            node.parent=bestNode
+                            openList.add(node)
                         }
                         else{
                             for(n in openList){
                                 if(n.node.number == node.node.number) {
-                                    if(n.G> node.G){
-                                        n.G = node.G
-                                        n.parent=node.parent
+                                    if(n.G> g){
+                                        n.G = g
+                                        n.parent=bestNode
+                                        n.F=n.G+n.H
                                         break
                                     }
                                 }
                             }
                         }
-                        node.F=node.G+node.H
                     }
                 }
             }
@@ -116,7 +136,7 @@ class AStar(var graph: Graph) {
     /**
      * Megadja egy adott pont minden szomszédját, az odajutás költségével együtt
      */
-    private fun getAllNeighbours(node: ANode): HashMap<ANode, Int> {
+    private fun getAllNeighbours(node: ANode, graph: Graph): HashMap<ANode, Int> {
         var neighbours = HashMap<ANode, Int>()
         for(edge in graph.edges){
             if(edge.nodeIsOnTheEdge(node)){

@@ -2,6 +2,7 @@ package com.example.astar.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.example.astar.algorithm.AStar
 import com.example.astar.algorithm.Graph
 import com.example.astar.database.*
 import com.example.astar.repository.AStarRepository
@@ -15,7 +16,7 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
 
     private var dbRepository: DBRepository
     private var fileRepository: FileRepository
-    private lateinit var aStarRepository: AStarRepository
+    private var aStarRepository: AStarRepository
     var graph = Graph()
     var path: MutableLiveData<String>
 
@@ -25,14 +26,14 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
         dbRepository=DBRepository(nodeDao, edgeDao)
         fileRepository = FileRepository()
         path= MutableLiveData()
-
-
+        aStarRepository= AStarRepository()
     }
     fun readFromDB() {
         viewModelScope.launch(Dispatchers.IO) {
             val nodes = dbRepository.getAllNode()
             val edges = dbRepository.getAllEdge()
             graph.createGraph(nodes, edges)
+            AStar.initGraph(graph)
         }
     }
 
@@ -45,9 +46,8 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun calculatePath(){
-        aStarRepository= AStarRepository(graph)
-        path.value=aStarRepository.calculate()
+    fun calculatePath(from:Int, to: Int){
+        path.value=aStarRepository.calculate(from, to)
     }
 
 

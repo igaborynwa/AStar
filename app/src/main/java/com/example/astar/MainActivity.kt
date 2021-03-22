@@ -26,10 +26,11 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnLoad.setOnClickListener {
            myViewModel.readFromDB()
+            binding.btnSearch.isEnabled=true
         }
 
         binding.btnSearch.setOnClickListener {
-            myViewModel.calculatePath()
+            myViewModel.calculatePath(binding.etFrom.text.toString().toInt(),binding.etTo.text.toString().toInt())
         }
     }
 

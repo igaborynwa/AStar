@@ -1,16 +1,14 @@
 package com.example.astar.repository
 
-import com.example.astar.algorithm.Graph
 import com.example.astar.algorithm.AStar
 
-class AStarRepository(val graph: Graph) {
+class AStarRepository {
 
-    fun calculate() : String{
-        val astar = AStar(graph)
-        var pathFound = astar.findPath(589, 728)
+    fun calculate(from: Int, to: Int) : String{
+        var pathFound = AStar.findPath(from, to)
         if(pathFound){
             var p="Útvonal: "
-            for( n in astar.path){
+            for( n in AStar.path){
                 p+= n.node.number.toString() + " - "
             }
             p= p.dropLast(3)

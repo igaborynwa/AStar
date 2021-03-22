@@ -3,8 +3,12 @@ package com.example.astar.algorithm
 import com.example.astar.database.Node
 
 class ANode(var node: Node) {
-    var G = 0 //eddigi idejutás költsége
-    var H = 0 //heurisztika a célig
-    var F = 0 //becsült költség a kezdőponttól ide jutás + célba jutás
-    var parent: ANode? = null //a pont, ahonnan ide érkeztünk
+    /**Az eddigi idejutás költsége**/
+    var G = 0
+    /**Becslés, a célig tartó út hosszára**/
+    var H = 0
+    /**Becsült költség a kezdőpontból a célig való eljutásra a ponton keresztül**/
+    var F = 0
+    /**A pont, ahonnan ide jutottunk**/
+    var parent: ANode? = null
 }
