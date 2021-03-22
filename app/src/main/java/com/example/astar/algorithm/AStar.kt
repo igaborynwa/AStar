@@ -21,16 +21,6 @@ object AStar {
     }
 
     /**
-     * Megadaja, hogy a paraméterül kapott listában benne van-e a megadott csúcs
-     */
-    fun listContains(list: ArrayList<ANode>, node: ANode): Boolean{
-        for(n in list){
-            if(n.node.number==node.node.number) return true
-        }
-        return false
-    }
-
-    /**
      * A closedList-ből elmenti a kalkulált útvonalat
      */
     private fun savePath(target: ANode){
@@ -104,10 +94,10 @@ object AStar {
             var neighbours = getAllNeighbours(bestNode, graph)
             if(neighbours.isNotEmpty()){
                 for(node in neighbours.keys){
-                    if(!listContains(closedList, node)){
+                    if(!closedList.contains(node)){
                         var g = bestNode.G+ neighbours.getValue(node)
 
-                        if(!listContains(openList, node)){
+                        if(!openList.contains(node)){
                             calculateHeuristics(node, target)
                             node.G=g
                             node.F=node.G+node.H
@@ -115,15 +105,11 @@ object AStar {
                             openList.add(node)
                         }
                         else{
-                            for(n in openList){
-                                if(n.node.number == node.node.number) {
-                                    if(n.G> g){
-                                        n.G = g
-                                        n.parent=bestNode
-                                        n.F=n.G+n.H
-                                        break
-                                    }
-                                }
+                            if(node.G> g){
+                                node.G = g
+                                node.parent=bestNode
+                                node.F=node.G+node.H
+                                break
                             }
                         }
                     }
